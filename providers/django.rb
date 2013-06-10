@@ -26,10 +26,12 @@ action :before_compile do
 
   include_recipe 'python'
 
-  new_resource.migration_command "#{::File.join(new_resource.virtualenv, "bin", "python")} manage.py syncdb --noinput" if !new_resource.migration_command
+  manage = new_resource.django_project.is_a?(String) ? ::File.join(new_resource.django_project, "manage.py") : "manage.py"
+  p "In django using #{manage} (#{new_resource.django_project})"
+  new_resource.migration_command "#{::File.join(new_resource.virtualenv, "bin", "python")} #{manage} syncdb --noinput" if !new_resource.migration_command
 
   new_resource.symlink_before_migrate.update({
-    new_resource.local_settings_base => new_resource.local_settings_file,
+    new_resource.local_settings_base => ::File.join(new_resource.django_project, new_resource.local_settings_file),
   })
 end
 
@@ -82,7 +84,10 @@ action :before_symlink do
 
   if new_resource.collectstatic
     cmd = new_resource.collectstatic.is_a?(String) ? new_resource.collectstatic : "collectstatic --noinput"
-    execute "#{::File.join(new_resource.virtualenv, "bin", "python")} manage.py #{cmd}" do
+    manage = new_resource.django_project.is_a?(String) ? ::File.join(new_resource.django_project, "manage.py") : "manage.py"
+    p "In django using #{manage} (#{new_resource.django_project})"
+
+    execute "#{::File.join(new_resource.virtualenv, "bin", "python")} #{manage} #{cmd}" do
       user new_resource.owner
       group new_resource.group
       cwd new_resource.release_path
@@ -130,7 +135,10 @@ end
 def created_settings_file
   host = new_resource.find_database_server(new_resource.database_master_role)
 
-  template "#{new_resource.path}/shared/#{new_resource.local_settings_base}" do
+  #proj = new_resource.django_project.is_a?(String) ? new_resource.django_project: ''
+  template_path = ::File.join(new_resource.path, '/shared/', new_resource.local_settings_base)
+
+  template template_path do
     source new_resource.settings_template || "settings.py.erb"
     cookbook new_resource.settings_template ? new_resource.cookbook_name.to_s : "application_python"
     owner new_resource.owner

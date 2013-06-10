@@ -30,6 +30,8 @@ attribute :settings_template, :kind_of => [String, NilClass], :default => nil
 attribute :local_settings_file, :kind_of => String, :default => 'local_settings.py'
 attribute :debug, :kind_of => [TrueClass, FalseClass], :default => false
 attribute :collectstatic, :kind_of => [TrueClass, FalseClass, String], :default => false
+attribute :django_project, :kind_of => [TrueClass, FalseClass, String], :default => nil
+attribute :newrelic_agent, :kind_of => [TrueClass, FalseClass], :default => false
 
 def local_settings_base
   local_settings_file.split(/[\\\/]/).last
