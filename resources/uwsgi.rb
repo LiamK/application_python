@@ -1,4 +1,4 @@
-include Chef::Resource::ApplicationBase
+include ApplicationCookbook::ResourceBase
 
 attribute :uwsgi_template, :kind_of => [String, NilClass], :default => nil
 attribute :nginx_proxy_template, :kind_of => [String, NilClass], :default => nil
