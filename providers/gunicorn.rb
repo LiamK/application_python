@@ -85,13 +85,16 @@ action :before_deploy do
     if new_resource.app_module == :django
       django_resource = new_resource.application.sub_resources.select{|res| res.type == :django}.first
       raise "No Django deployment resource found" unless django_resource
-      manage = django_resource.django_project ? ::File.join(django_resource.django_project, 'manage.py') : 'manage.py'
+      #manage = django_resource.django_project ? ::File.join(django_resource.django_project, 'manage.py') : 'manage.py'
       nr_command = "#{::File.join(django_resource.virtualenv, "bin", "newrelic-admin")} run-program"
-      dj_command = "#{::File.join(django_resource.virtualenv, "bin", "python")} #{manage} run_gunicorn"
+      # Avoid run_gunicorn; use gunicorn instead.
+      #dj_command = "#{::File.join(django_resource.virtualenv, "bin", "python")} #{manage} run_gunicorn"
+      gunicorn_command = new_resource.virtualenv.nil? ? "gunicorn" : "#{::File.join(new_resource.virtualenv, "bin", "gunicorn")}"
+      base_command = "#{gunicorn_command} #{new_resource.app_module}"
       if django_resource.newrelic_agent
-	base_command = "#{nr_command} #{dj_command}"
+	base_command = "#{nr_command} #{gunicorn_command}"
       else
-	base_command = "#{dj_command}"
+	base_command = "#{gunicorn_command}"
       end
     else
       gunicorn_command = new_resource.virtualenv.nil? ? "gunicorn" : "#{::File.join(new_resource.virtualenv, "bin", "gunicorn")}"
