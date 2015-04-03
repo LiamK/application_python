@@ -78,10 +78,13 @@ action :before_deploy do
 
   supervisor_service new_resource.application.name do
     action :enable
+    Chef::Log.error("new_resource.app_module: #{new_resource.app_module}")
+    Chef::Log.error("new_resource.virtualenv: #{new_resource.virtualenv}")
+    Chef::Log.error("new_resource.application.name: #{new_resource.application.name}")
+    Chef::Log.error("new_resource.environment: #{new_resource.environment}")
     if new_resource.environment
       environment new_resource.environment
     end
-    Chef::Log.info("new_resource.app_module: #{new_resource.app_module}")
     if new_resource.app_module == :django
       django_resource = new_resource.application.sub_resources.select{|res| res.type == :django}.first
       raise "No Django deployment resource found" unless django_resource
