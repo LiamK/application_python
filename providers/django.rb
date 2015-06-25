@@ -116,6 +116,7 @@ protected
 def install_packages
   python_virtualenv new_resource.virtualenv do
     path new_resource.virtualenv
+    interpreter new_resource.interpreter || "python2.7.9"
     owner new_resource.owner
     group new_resource.group
     action :create
