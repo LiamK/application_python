@@ -28,7 +28,7 @@ action :before_compile do
 
   manage = new_resource.django_project.is_a?(String) ? ::File.join(new_resource.django_project, "manage.py") : "manage.py"
   p "In django using #{manage} (#{new_resource.django_project})"
-  new_resource.migration_command "#{::File.join(new_resource.virtualenv, "bin", "python")} #{manage} migrate --noinput --no-initial-data" if !new_resource.migration_command
+  new_resource.migration_command "#{::File.join(new_resource.virtualenv, "bin", "python")} #{manage} migrate --noinput" if !new_resource.migration_command
 
   new_resource.symlink_before_migrate.update({
     new_resource.local_settings_base => ::File.join(new_resource.django_project, new_resource.local_settings_file),
